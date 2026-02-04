@@ -83,8 +83,8 @@ func newStartCmd() *cobra.Command {
 			signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 			go func() {
 				<-sigChan
-				fmt.Fprintln(os.Stderr, "\nShutting down...")
-				d.Stop()
+				_, _ = fmt.Fprintln(os.Stderr, "\nShutting down...")
+				_ = d.Stop()
 				cancel()
 			}()
 
@@ -116,6 +116,7 @@ func newStopCmd() *cobra.Command {
 			c := client.New(cfg.SocketPath)
 			if c.IsDaemonRunning() {
 				// TODO: Send shutdown RPC
+				_ = c // Use c to avoid unused variable
 			}
 
 			// Force stop

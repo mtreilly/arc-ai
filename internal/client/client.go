@@ -98,16 +98,14 @@ func (c *Client) Query(ctx context.Context, req *bridge.Request) (*bridge.Respon
 		return nil, fmt.Errorf("arc-ai daemon not running. Start with: arc-ai start")
 	}
 
-	// Set timeout
-	ctx, cancel := context.WithTimeout(ctx, c.timeout)
-	defer cancel()
+	_ = ctx // Context not used in this implementation yet
 
 	// Connect to daemon
 	conn, err := net.Dial("unix", c.socketPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to arc-ai daemon: %w", err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// Send request
 	encoder := json.NewEncoder(conn)

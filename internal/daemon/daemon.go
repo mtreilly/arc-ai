@@ -53,7 +53,7 @@ func (d *Daemon) Start(ctx context.Context) error {
 
 	// Remove old socket if exists
 	if _, err := os.Stat(d.config.SocketPath); err == nil {
-		os.Remove(d.config.SocketPath)
+		_ = os.Remove(d.config.SocketPath)
 	}
 
 	// Create Unix socket listener
@@ -71,7 +71,7 @@ func (d *Daemon) Start(ctx context.Context) error {
 
 	// Start Pi (it will connect to our socket)
 	if err := piCmd.Start(); err != nil {
-		listener.Close()
+		_ = listener.Close()
 		return fmt.Errorf("failed to start Pi: %w", err)
 	}
 
@@ -99,17 +99,17 @@ func (d *Daemon) Stop() error {
 
 	// Stop accepting new connections
 	if d.listener != nil {
-		d.listener.Close()
+		_ = d.listener.Close()
 	}
 
 	// Kill Pi process
 	if d.cmd != nil && d.cmd.Process != nil {
-		d.cmd.Process.Kill()
-		d.cmd.Wait()
+		_ = d.cmd.Process.Kill()
+		_ = d.cmd.Wait()
 	}
 
 	// Clean up socket
-	os.Remove(d.config.SocketPath)
+	_ = os.Remove(d.config.SocketPath)
 
 	d.running = false
 	return nil
@@ -143,7 +143,7 @@ func (d *Daemon) Query(ctx context.Context, req *bridge.Request) (*bridge.Respon
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to daemon: %w", err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// Send request
 	encoder := json.NewEncoder(conn)
@@ -187,7 +187,7 @@ func (d *Daemon) acceptConnections(ctx context.Context) {
 
 // handleConnection processes a single Pi connection
 func (d *Daemon) handleConnection(ctx context.Context, conn net.Conn) {
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// TODO: Implement bidirectional RPC with Pi
 	// For now, this is a simple request-response
