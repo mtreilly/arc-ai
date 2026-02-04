@@ -6,12 +6,11 @@ package main
 import (
 	"os"
 
-	"github.com/yourorg/arc-ai/internal/cmd"
+	"github.com/mtreilly/arc-ai/cmd"
 )
 
 func main() {
-	root := cmd.NewRootCmd()
-	if err := root.Execute(); err != nil {
+	if err := cmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
